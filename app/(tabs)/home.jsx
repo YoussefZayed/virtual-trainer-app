@@ -1,86 +1,118 @@
-import { useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { FlatList, Image, RefreshControl, Text, View } from "react-native";
+// Home.js
 
-import { images } from "../../constants";
+import React, { useState } from "react";
+import { Alert, FlatList, Image, RefreshControl, Text, View, TouchableOpacity, ActivityIndicator } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+import { images, icons } from "../../constants";
 import useAppwrite from "../../lib/useAppwrite";
-import { getAllPosts, getLatestPosts } from "../../lib/appwrite";
-import { EmptyState, SearchInput, Trending, VideoCard } from "../../components";
+import { listWorkoutTemplates, addUserWorkout } from "../../lib/appwrite";
+import { EmptyState, SearchInput, Loader } from "../../components";
 
 const Home = () => {
-  const { data: posts, refetch } = useAppwrite(getAllPosts);
-  const { data: latestPosts } = useAppwrite(getLatestPosts);
+  // Fetch workout templates using the useAppwrite hook
+  const { data: workoutTemplates, loading, refetch } = useAppwrite(listWorkoutTemplates);
 
   const [refreshing, setRefreshing] = useState(false);
+  const [subscribing, setSubscribing] = useState({}); // Track subscribing state per workout
 
+  // Handle pull-to-refresh
   const onRefresh = async () => {
     setRefreshing(true);
     await refetch();
     setRefreshing(false);
   };
 
-  // one flatlist
-  // with list header
-  // and horizontal flatlist
+  // Handle subscribing to a workout
+  const handleSubscribe = async (templateId) => {
+    try {
+      setSubscribing((prev) => ({ ...prev, [templateId]: true }));
+      await addUserWorkout(templateId);
+      Alert.alert("Success", "You have successfully subscribed to this workout!");
+      refetch(); // Optionally refetch to update the list if needed
+    } catch (error) {
+      Alert.alert("Subscription Error", error.message || "Failed to subscribe to the workout.");
+    } finally {
+      setSubscribing((prev) => ({ ...prev, [templateId]: false }));
+    }
+  };
 
-  //  we cannot do that with just scrollview as there's both horizontal and vertical scroll (two flat lists, within trending)
+  // Render each workout template item
+  const renderWorkoutTemplate = ({ item }) => (
+    <View className="flex-row items-center bg-white rounded-lg shadow-md p-4 mb-4 mx-4">
+      <Image
+        source={{ uri: item.image }}
+        resizeMode="cover"
+        className="w-20 h-20 rounded-lg"
+      />
+      <View className="flex-1 ml-4">
+        <Text className="text-lg font-psemibold text-gray-800">{item.Name}</Text>
+        <Text className="text-sm text-gray-600 mt-1">{item.Exercises.length} Exercises</Text>
+      </View>
+      <TouchableOpacity
+        className="bg-amber-500 px-4 py-2 rounded-lg"
+        onPress={() => handleSubscribe(item.$id)}
+        disabled={subscribing[item.$id]}
+      >
+        {subscribing[item.$id] ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text className="text-white font-pregular">Subscribe</Text>
+        )}
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
-    <SafeAreaView className="bg-primary">
-      <FlatList
-        data={posts}
-        keyExtractor={(item) => item.$id}
-        renderItem={({ item }) => (
-          <VideoCard
-            title={item.title}
-            thumbnail={item.thumbnail}
-            video={item.video}
-            creator={item.creator.username}
-            avatar={item.creator.avatar}
+    <SafeAreaView className="flex-1 bg-primary">
+      {/* Header Section */}
+      <View className="flex-row justify-between items-center px-4 py-3">
+        <View>
+          <Text className="font-pmedium text-sm text-gray-100">Welcome Back</Text>
+          <Text className="text-2xl font-psemibold text-white">Your Workouts</Text>
+        </View>
+        <View>
+          <Image
+            source={images.logoSmall}
+            className="w-9 h-10"
+            resizeMode="contain"
           />
-        )}
+        </View>
+      </View>
+
+      {/* Search Input */}
+      <View className="px-4 mb-4">
+        <SearchInput placeholder="Search Workouts..." />
+      </View>
+
+      {/* Workout Templates List */}
+      <FlatList
+        data={workoutTemplates}
+        keyExtractor={(item) => item.$id}
+        renderItem={renderWorkoutTemplate}
         ListHeaderComponent={() => (
-          <View className="flex my-6 px-4 space-y-6">
-            <View className="flex justify-between items-start flex-row mb-6">
-              <View>
-                <Text className="font-pmedium text-sm text-gray-100">
-                  Welcome Back
-                </Text>
-                <Text className="text-2xl font-psemibold text-white">
-                  JSMastery
-                </Text>
-              </View>
-
-              <View className="mt-1.5">
-                <Image
-                  source={images.logoSmall}
-                  className="w-9 h-10"
-                  resizeMode="contain"
-                />
-              </View>
-            </View>
-
-            <SearchInput />
-
-            <View className="w-full flex-1 pt-5 pb-8">
-              <Text className="text-lg font-pregular text-gray-100 mb-3">
-                Latest Videos
-              </Text>
-
-              <Trending posts={latestPosts ?? []} />
-            </View>
+          <View className="px-4 mb-4">
+            <Text className="text-lg font-pregular text-gray-100 mb-3">
+              Available Workouts
+            </Text>
           </View>
         )}
         ListEmptyComponent={() => (
-          <EmptyState
-            title="No Videos Found"
-            subtitle="No videos created yet"
-          />
+          !loading && (
+            <EmptyState
+              title="No Workouts Available"
+              subtitle="Please check back later or subscribe to a workout."
+            />
+          )
         )}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
+        contentContainerStyle={workoutTemplates.length === 0 && { flex: 1, justifyContent: 'center', alignItems: 'center' }}
       />
+
+      {/* Loader for initial loading */}
+      <Loader isLoading={loading} />
     </SafeAreaView>
   );
 };

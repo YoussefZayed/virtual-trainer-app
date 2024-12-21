@@ -1,3 +1,5 @@
+// Layout.js
+
 import { StatusBar } from "expo-status-bar";
 import { Redirect, Tabs } from "expo-router";
 import { Image, Text, View } from "react-native";
@@ -8,7 +10,7 @@ import { useGlobalContext } from "../../context/GlobalProvider";
 
 const TabIcon = ({ icon, color, name, focused }) => {
   return (
-    <View className="flex items-center justify-center gap-2">
+    <View className="flex items-center justify-center gap-1">
       <Image
         source={icon}
         resizeMode="contain"
@@ -61,9 +63,21 @@ const TabLayout = () => {
           }}
         />
 
-
-
-
+        <Tabs.Screen
+          name="my-workouts" // Ensure this matches your routing setup
+          options={{
+            title: "My Workouts",
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.workout} // Ensure you have a workout icon
+                color={color}
+                name="My Workouts"
+                focused={focused}
+              />
+            ),
+          }}
+        />
       </Tabs>
 
       <Loader isLoading={loading} />
