@@ -7,25 +7,23 @@ import { Image, Text, View } from "react-native";
 import { icons } from "../../constants";
 import { Loader } from "../../components";
 import { useGlobalContext } from "../../context/GlobalProvider";
+import React from 'react';
+
 
 const TabIcon = ({ icon, color, name, focused }) => {
   return (
-    <View className="flex items-center justify-center gap-1">
-      <Image
-        source={icon}
-        resizeMode="contain"
-        tintColor={color}
-        className="w-6 h-6"
-      />
+    <View className="flex flex-col items-center justify-center w-16">
       <Text
-        className={`${focused ? "font-psemibold" : "font-pregular"} text-xs`}
-        style={{ color: color }}
+        className={`text-xs font-psemibold ${focused ? 'text-amber-500' : 'text-gray-400'}`}
       >
         {name}
       </Text>
     </View>
   );
 };
+
+
+
 
 const TabLayout = () => {
   const { loading, isLogged } = useGlobalContext();
@@ -36,21 +34,26 @@ const TabLayout = () => {
     <>
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: "#FFA001",
-          tabBarInactiveTintColor: "#CDCDE0",
-          tabBarShowLabel: false,
+          tabBarActiveTintColor: '#FFA001',
+          tabBarInactiveTintColor: '#CDCDE0',
+          tabBarShowLabel: false, // We're handling labels manually in TabIcon
           tabBarStyle: {
-            backgroundColor: "#161622",
+            backgroundColor: '#161622',
             borderTopWidth: 1,
-            borderTopColor: "#232533",
-            height: 84,
+            borderTopColor: '#232533',
+            height: 84, // Ensure this height accommodates both icon and text
+            paddingBottom: 10, // Optional: Adjust padding as needed
+          },
+          tabBarItemStyle: {
+            flex: 1, // Ensure each tab item takes equal space
+            justifyContent: 'center',
           },
         }}
       >
         <Tabs.Screen
           name="home"
           options={{
-            title: "Home",
+            title: 'Home',
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
@@ -66,7 +69,7 @@ const TabLayout = () => {
         <Tabs.Screen
           name="my-workouts" // Ensure this matches your routing setup
           options={{
-            title: "My Workouts",
+            title: 'Workouts',
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon

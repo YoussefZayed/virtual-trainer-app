@@ -68,8 +68,8 @@ const Home = () => {
       {/* Header Section */}
       <View className="flex-row justify-between items-center px-4 py-3">
         <View>
-          <Text className="font-pmedium text-sm text-gray-100">Welcome Back</Text>
-          <Text className="text-2xl font-psemibold text-white">Your Workouts</Text>
+          <Text className="font-pmedium text-sm text-gray-100">Welcome Back!</Text>
+          <Text className="text-2xl font-psemibold text-white">Add New Workouts</Text>
         </View>
         <View>
           <Image
@@ -81,9 +81,9 @@ const Home = () => {
       </View>
 
       {/* Search Input */}
-      <View className="px-4 mb-4">
+      {/* <View className="px-4 mb-4">
         <SearchInput placeholder="Search Workouts..." />
-      </View>
+      </View> */}
 
       {/* Workout Templates List */}
       <FlatList
