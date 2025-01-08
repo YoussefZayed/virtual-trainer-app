@@ -6,13 +6,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { images, icons } from "../../constants";
 import useAppwrite from "../../lib/useAppwrite";
-import { listWorkoutTemplates, addUserWorkout } from "../../lib/appwrite";
+import { listWorkoutTemplates, addUserWorkout, viewUserWorkouts } from "../../lib/appwrite";
 import { EmptyState, SearchInput, Loader } from "../../components";
+import { router } from "expo-router";
 
 const Home = () => {
   // Fetch workout templates using the useAppwrite hook
   const { data: workoutTemplates, loading, refetch } = useAppwrite(listWorkoutTemplates);
-
+  const { refetch: userWorkoutsRefetch } = useAppwrite(viewUserWorkouts);
   const [refreshing, setRefreshing] = useState(false);
   const [subscribing, setSubscribing] = useState({}); // Track subscribing state per workout
 
@@ -30,6 +31,7 @@ const Home = () => {
       await addUserWorkout(templateId);
       Alert.alert("Success", "You have successfully subscribed to this workout!");
       refetch(); // Optionally refetch to update the list if needed
+      userWorkoutsRefetch(); // Refetch user workouts to update the active workout
     } catch (error) {
       Alert.alert("Subscription Error", error.message || "Failed to subscribe to the workout.");
     } finally {
@@ -49,7 +51,7 @@ const Home = () => {
         <Text className="text-lg font-psemibold text-gray-800">{item.Name}</Text>
         <Text className="text-sm text-gray-600 mt-1">{item.Exercises.length} Exercises</Text>
       </View>
-      <TouchableOpacity
+      {/* <TouchableOpacity
         className="bg-amber-500 px-4 py-2 rounded-lg"
         onPress={() => handleSubscribe(item.$id)}
         disabled={subscribing[item.$id]}
@@ -59,6 +61,14 @@ const Home = () => {
         ) : (
           <Text className="text-white font-pregular">Subscribe</Text>
         )}
+      </TouchableOpacity> */}
+
+      {/* Add a button to navigate to the workout details screen */}
+      <TouchableOpacity
+        className="bg-amber-500 px-4 py-2 rounded-lg"
+        onPress={() => router.push(`/workout/${item.$id}`)}
+      >
+        <Text className="text-white font-pregular">View</Text>
       </TouchableOpacity>
     </View>
   );

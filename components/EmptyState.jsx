@@ -21,7 +21,7 @@ const EmptyState = ({ title, subtitle }) => {
       <CustomButton
         title="Back to Explore"
         handlePress={() => router.push("/home")}
-        containerStyles="w-full my-5"
+        containerStyles="w-full my-5 flex justify-center"
       />
     </View>
   );

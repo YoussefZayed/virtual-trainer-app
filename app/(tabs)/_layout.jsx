@@ -14,7 +14,7 @@ const TabIcon = ({ icon, color, name, focused }) => {
   return (
     <View className="flex flex-col items-center justify-center w-16">
       <Text
-        className={`text-xs font-psemibold ${focused ? 'text-amber-500' : 'text-gray-400'}`}
+        className={`text-xs text-nowrap text-center font-psemibold ${focused ? 'text-amber-500' : 'text-gray-400'}`}
       >
         {name}
       </Text>
@@ -51,6 +51,22 @@ const TabLayout = () => {
         }}
       >
         <Tabs.Screen
+          name="my-workouts" // Ensure this matches your routing setup
+          options={{
+            title: 'Workouts',
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.workout} // Ensure you have a workout icon
+                color={color}
+                name="My Workouts"
+                focused={focused}
+              />
+            ),
+          }}
+        />
+
+        <Tabs.Screen
           name="home"
           options={{
             title: 'Home',
@@ -66,21 +82,7 @@ const TabLayout = () => {
           }}
         />
 
-        <Tabs.Screen
-          name="my-workouts" // Ensure this matches your routing setup
-          options={{
-            title: 'Workouts',
-            headerShown: false,
-            tabBarIcon: ({ color, focused }) => (
-              <TabIcon
-                icon={icons.workout} // Ensure you have a workout icon
-                color={color}
-                name="My Workouts"
-                focused={focused}
-              />
-            ),
-          }}
-        />
+
       </Tabs>
 
       <Loader isLoading={loading} />
