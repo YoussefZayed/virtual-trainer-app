@@ -23,6 +23,11 @@ import {
     FrequencyType,
     WorkoutAssignment,
     CompletedSet,
+    WorkoutHistory,
+    CompletedExercise,
+    ActiveWorkout,
+    ActiveExercise,
+    ActiveSet,
 } from "../types/appwrite";
 
 export const appwriteConfig = {
@@ -31,16 +36,16 @@ export const appwriteConfig = {
     platform: 'com.youssef.virtual-trainer',
     databaseId: '6748f0a60028e62f07a5',
     userCollectionId: '6748f0e2000c72adb75c',
-    excerciseCollectionId: '67bf2a170022e8c8fb60',
+    exerciseCollectionId: '67bf2a170022e8c8fb60',
     workoutCollectionId: '67bf2b120013c38947dd',
-    workoutExcerciseCollectionId: '67bf2baf00055bf7be29',
+    workoutExerciseCollectionId: '67bf2baf00055bf7be29',
     workoutAssignmentCollectionId: '67bf2d1400315ec41d71',
     workoutHistoryCollectionId: '67bf322e0019c62cd65b',
     completedSetCollectionId: '67bf32cd002628a7aa20',
     completedExerciseCollectionId: '67bf33440005d597ad54',
-    activeWorkout: '67d269920039da4d006b',
-    activeSet: '67d27b1a0003fd339925',
-    ActiveExercise: '67d27bba000ef960443d',
+    activeWorkoutCollectionId: '67d269920039da4d006b',
+    activeSetCollectionId: '67d27b1a0003fd339925',
+    activeExerciseCollectionId: '67d27bba000ef960443d',
     storageID: '6748f2310011290fec69'
 }
 
@@ -59,7 +64,7 @@ const avatars = new Avatars(client);
 const databases = new Databases(client);
 
 // Register user
-export async function createUser(email, password, username) {
+export async function createUser(email: string, password: string, username: string): Promise<User> {
     try {
         const newAccount = await account.create(
             ID.unique(),
@@ -68,7 +73,7 @@ export async function createUser(email, password, username) {
             username
         );
 
-        if (!newAccount) throw Error;
+        if (!newAccount) throw new Error('Failed to create account');
 
         const avatarUrl = avatars.getInitials(username);
 
@@ -86,39 +91,39 @@ export async function createUser(email, password, username) {
             }
         );
 
-        return newUser;
-    } catch (error) {
-        throw new Error(error);
+        return newUser as unknown as User;
+    } catch (error: any) {
+        throw new Error(error?.message || 'Unknown error during user creation');
     }
 }
 
 // Sign In
-export async function signIn(email, password) {
+export async function signIn(email: string, password: string): Promise<any> {
     try {
         const session = await account.createEmailPasswordSession(email, password);
 
         return session;
-    } catch (error) {
-        throw new Error(error);
+    } catch (error: any) {
+        throw new Error(error?.message || 'Authentication failed');
     }
 }
 
 // Get Account
-export async function getAccount() {
+export async function getAccount(): Promise<any> {
     try {
         const currentAccount = await account.get();
 
         return currentAccount;
-    } catch (error) {
-        throw new Error(error);
+    } catch (error: any) {
+        throw new Error(error?.message || 'Failed to get account');
     }
 }
 
 // Get Current User
-export async function getCurrentUser() {
+export async function getCurrentUser(): Promise<User | null> {
     try {
         const currentAccount = await getAccount();
-        if (!currentAccount) throw Error;
+        if (!currentAccount) throw new Error('No account found');
 
         const currentUser = await databases.listDocuments(
             appwriteConfig.databaseId,
@@ -126,22 +131,184 @@ export async function getCurrentUser() {
             [Query.equal("accountId", currentAccount.$id)]
         );
 
-        if (!currentUser) throw Error;
+        if (!currentUser || currentUser.documents.length === 0) {
+            throw new Error('User not found');
+        }
 
-        return currentUser.documents[0];
-    } catch (error) {
-        console.log(error);
+        return currentUser.documents[0] as unknown as User;
+    } catch (error: any) {
+        console.log(error?.message || 'Error fetching current user');
         return null;
     }
 }
 
 // Sign Out
-export async function signOut() {
+export async function signOut(): Promise<any> {
     try {
         const session = await account.deleteSession("current");
 
         return session;
-    } catch (error) {
-        throw new Error(error);
+    } catch (error: any) {
+        throw new Error(error?.message || 'Failed to sign out');
+    }
+}
+
+// Get Exercise by ID
+export async function getExercise(id: string): Promise<Exercise> {
+    try {
+        const exercise = await databases.getDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.exerciseCollectionId,
+            id
+        );
+        
+        return exercise as unknown as Exercise;
+    } catch (error: any) {
+        console.error("Error fetching exercise:", error);
+        throw new Error(error?.message || 'Failed to fetch exercise');
+    }
+}
+
+// Get Workout by ID
+export async function getWorkout(id: string): Promise<Workout> {
+    try {
+        const workout = await databases.getDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.workoutCollectionId,
+            id
+        );
+        
+        return workout as unknown as Workout;
+    } catch (error: any) {
+        console.error("Error fetching workout:", error);
+        throw new Error(error?.message || 'Failed to fetch workout');
+    }
+}
+
+// Get WorkoutExercise by ID
+export async function getWorkoutExercise(id: string): Promise<WorkoutExercise> {
+    try {
+        const workoutExercise = await databases.getDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.workoutExerciseCollectionId,
+            id
+        );
+        
+        return workoutExercise as unknown as WorkoutExercise;
+    } catch (error: any) {
+        console.error("Error fetching workout exercise:", error);
+        throw new Error(error?.message || 'Failed to fetch workout exercise');
+    }
+}
+
+// Get WorkoutAssignment by ID
+export async function getWorkoutAssignment(id: string): Promise<WorkoutAssignment> {
+    try {
+        const workoutAssignment = await databases.getDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.workoutAssignmentCollectionId,
+            id
+        );
+        
+        return workoutAssignment as unknown as WorkoutAssignment;
+    } catch (error: any) {
+        console.error("Error fetching workout assignment:", error);
+        throw new Error(error?.message || 'Failed to fetch workout assignment');
+    }
+}
+
+// Get WorkoutHistory by ID
+export async function getWorkoutHistory(id: string): Promise<WorkoutHistory> {
+    try {
+        const workoutHistory = await databases.getDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.workoutHistoryCollectionId,
+            id
+        );
+        
+        return workoutHistory as unknown as WorkoutHistory;
+    } catch (error: any) {
+        console.error("Error fetching workout history:", error);
+        throw new Error(error?.message || 'Failed to fetch workout history');
+    }
+}
+
+// Get CompletedSet by ID
+export async function getCompletedSet(id: string): Promise<CompletedSet> {
+    try {
+        const completedSet = await databases.getDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.completedSetCollectionId,
+            id
+        );
+        
+        return completedSet as unknown as CompletedSet;
+    } catch (error: any) {
+        console.error("Error fetching completed set:", error);
+        throw new Error(error?.message || 'Failed to fetch completed set');
+    }
+}
+
+// Get CompletedExercise by ID
+export async function getCompletedExercise(id: string): Promise<CompletedExercise> {
+    try {
+        const completedExercise = await databases.getDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.completedExerciseCollectionId,
+            id
+        );
+        
+        return completedExercise as unknown as CompletedExercise;
+    } catch (error: any) {
+        console.error("Error fetching completed exercise:", error);
+        throw new Error(error?.message || 'Failed to fetch completed exercise');
+    }
+}
+
+// Get ActiveWorkout by ID
+export async function getActiveWorkout(id: string): Promise<ActiveWorkout> {
+    try {
+        const activeWorkout = await databases.getDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.activeWorkoutCollectionId,
+            id
+        );
+        
+        return activeWorkout as unknown as ActiveWorkout;
+    } catch (error: any) {
+        console.error("Error fetching active workout:", error);
+        throw new Error(error?.message || 'Failed to fetch active workout');
+    }
+}
+
+// Get ActiveExercise by ID
+export async function getActiveExercise(id: string): Promise<ActiveExercise> {
+    try {
+        const activeExercise = await databases.getDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.activeExerciseCollectionId,
+            id
+        );
+        
+        return activeExercise as unknown as ActiveExercise;
+    } catch (error: any) {
+        console.error("Error fetching active exercise:", error);
+        throw new Error(error?.message || 'Failed to fetch active exercise');
+    }
+}
+
+// Get ActiveSet by ID
+export async function getActiveSet(id: string): Promise<ActiveSet> {
+    try {
+        const activeSet = await databases.getDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.activeSetCollectionId,
+            id
+        );
+        
+        return activeSet as unknown as ActiveSet;
+    } catch (error: any) {
+        console.error("Error fetching active set:", error);
+        throw new Error(error?.message || 'Failed to fetch active set');
     }
 }
