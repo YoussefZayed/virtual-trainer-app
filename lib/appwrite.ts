@@ -38,6 +38,9 @@ export const appwriteConfig = {
     workoutHistoryCollectionId: '67bf322e0019c62cd65b',
     completedSetCollectionId: '67bf32cd002628a7aa20',
     completedExerciseCollectionId: '67bf33440005d597ad54',
+    activeWorkout: '67d269920039da4d006b',
+    activeSet: '67d27b1a0003fd339925',
+    ActiveExercise: '67d27bba000ef960443d',
     storageID: '6748f2310011290fec69'
 }
 
