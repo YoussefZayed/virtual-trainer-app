@@ -12,9 +12,10 @@ import React from 'react';
 
 const TabIcon = ({ icon, color, name, focused }) => {
   return (
-    <View className="flex flex-col items-center justify-center w-16">
+    <View className="flex flex-col items-center justify-center">
       <Text
-        className={`text-xs text-nowrap text-center font-psemibold ${focused ? 'text-amber-500' : 'text-gray-400'}`}
+        className={`text-sm text-center font-pbold ${focused ? 'text-amber-500' : 'text-gray-400'}`}
+        style={{ minWidth: 70 }}
       >
         {name}
       </Text>
@@ -41,11 +42,12 @@ const TabLayout = () => {
             backgroundColor: '#161622',
             borderTopWidth: 1,
             borderTopColor: '#232533',
-            height: 84, // Ensure this height accommodates both icon and text
-            paddingBottom: 10, // Optional: Adjust padding as needed
+            height: 70,
+            paddingVertical: 12,
           },
           tabBarItemStyle: {
-            flex: 1, // Ensure each tab item takes equal space
+            flex: 1,
+            alignItems: 'center',
             justifyContent: 'center',
           },
         }}
@@ -59,7 +61,7 @@ const TabLayout = () => {
               <TabIcon
                 icon={icons.workout} // Ensure you have a workout icon
                 color={color}
-                name="My Workouts"
+                name="Workouts"
                 focused={focused}
               />
             ),
@@ -69,13 +71,13 @@ const TabLayout = () => {
         <Tabs.Screen
           name="home"
           options={{
-            title: 'Home',
+            title: 'Explore',
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
                 icon={icons.home}
                 color={color}
-                name="Home"
+                name="Explore"
                 focused={focused}
               />
             ),

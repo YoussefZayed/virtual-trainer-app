@@ -15,7 +15,10 @@ const CustomButton = ({
         }`}
       disabled={isLoading}
     >
-      <Text className={`text-primary font-psemibold text-lg ${textStyles} text-center`}>
+      <Text 
+        className={`text-primary font-psemibold text-lg ${textStyles}`}
+        style={{ textAlign: 'center', width: isLoading ? 'auto' : '100%' }}
+      >
         {title}
       </Text>
 
