@@ -312,3 +312,186 @@ export async function getActiveSet(id: string): Promise<ActiveSet> {
         throw new Error(error?.message || 'Failed to fetch active set');
     }
 }
+
+// List all exercises
+export async function listExercises(): Promise<Exercise[]> {
+    try {
+        const exercises = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.exerciseCollectionId
+        );
+        
+        return exercises.documents as unknown as Exercise[];
+    } catch (error: any) {
+        console.error("Error listing exercises:", error);
+        throw new Error(error?.message || 'Failed to list exercises');
+    }
+}
+
+// List all workouts (templates)
+export async function listWorkoutTemplates(): Promise<Workout[]> {
+    try {
+        const workouts = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.workoutCollectionId
+        );
+        
+        return workouts.documents as unknown as Workout[];
+    } catch (error: any) {
+        console.error("Error listing workout templates:", error);
+        throw new Error(error?.message || 'Failed to list workout templates');
+    }
+}
+
+// List all workout exercises
+export async function listWorkoutExercises(): Promise<WorkoutExercise[]> {
+    try {
+        const workoutExercises = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.workoutExerciseCollectionId
+        );
+        
+        return workoutExercises.documents as unknown as WorkoutExercise[];
+    } catch (error: any) {
+        console.error("Error listing workout exercises:", error);
+        throw new Error(error?.message || 'Failed to list workout exercises');
+    }
+}
+
+// List workout assignments for a user
+export async function viewUserWorkouts(): Promise<WorkoutAssignment[]> {
+    try {
+        // Fetch all workout assignments without filtering by user
+        // We can't query on virtual relationship fields
+        const workoutAssignments = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.workoutAssignmentCollectionId
+        );
+        
+        // Ensure we return an array even if documents is undefined
+        return (workoutAssignments?.documents || []) as unknown as WorkoutAssignment[];
+    } catch (error: any) {
+        console.error("Error listing user workouts:", error);
+        // Return an empty array instead of throwing an error
+        return [];
+    }
+}
+
+// Add a workout to a user
+export async function addUserWorkout(workoutId: string): Promise<WorkoutAssignment> {
+    try {
+        const currentUser = await getCurrentUser();
+        if (!currentUser) throw new Error('User not authenticated');
+
+        // Use correct field names according to the schema
+        const workoutAssignment = await databases.createDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.workoutAssignmentCollectionId,
+            ID.unique(),
+            {
+                user: currentUser.$id,
+                workout: workoutId,
+                assignedBy: currentUser.$id,
+                startDate: new Date().toISOString(),
+                frequencyType: 'DAILY',
+                frequencyValues: ['0', '1', '2', '3', '4', '5', '6'],
+                status: 'ACTIVE'
+            }
+        );
+        
+        return workoutAssignment as unknown as WorkoutAssignment;
+    } catch (error: any) {
+        console.error("Error adding user workout:", error);
+        throw new Error(error?.message || 'Failed to add user workout');
+    }
+}
+
+// List all workout history
+export async function listWorkoutHistory(): Promise<WorkoutHistory[]> {
+    try {
+        const workoutHistory = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.workoutHistoryCollectionId
+        );
+        
+        return workoutHistory.documents as unknown as WorkoutHistory[];
+    } catch (error: any) {
+        console.error("Error listing workout history:", error);
+        throw new Error(error?.message || 'Failed to list workout history');
+    }
+}
+
+// List all completed sets
+export async function listCompletedSets(): Promise<CompletedSet[]> {
+    try {
+        const completedSets = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.completedSetCollectionId
+        );
+        
+        return completedSets.documents as unknown as CompletedSet[];
+    } catch (error: any) {
+        console.error("Error listing completed sets:", error);
+        throw new Error(error?.message || 'Failed to list completed sets');
+    }
+}
+
+// List all completed exercises
+export async function listCompletedExercises(): Promise<CompletedExercise[]> {
+    try {
+        const completedExercises = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.completedExerciseCollectionId
+        );
+        
+        return completedExercises.documents as unknown as CompletedExercise[];
+    } catch (error: any) {
+        console.error("Error listing completed exercises:", error);
+        throw new Error(error?.message || 'Failed to list completed exercises');
+    }
+}
+
+// List all active workouts
+export async function listActiveWorkouts(): Promise<ActiveWorkout[]> {
+    try {
+        const activeWorkouts = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.activeWorkoutCollectionId
+        );
+        
+        return activeWorkouts.documents as unknown as ActiveWorkout[];
+    } catch (error: any) {
+        console.error("Error listing active workouts:", error);
+        throw new Error(error?.message || 'Failed to list active workouts');
+    }
+}
+
+// List all active exercises
+export async function listActiveExercises(): Promise<ActiveExercise[]> {
+    try {
+        const activeExercises = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.activeExerciseCollectionId
+        );
+        
+        return activeExercises.documents as unknown as ActiveExercise[];
+    } catch (error: any) {
+        console.error("Error listing active exercises:", error);
+        throw new Error(error?.message || 'Failed to list active exercises');
+    }
+}
+
+// List all active sets
+export async function listActiveSets(): Promise<ActiveSet[]> {
+    try {
+        const activeSets = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.activeSetCollectionId
+        );
+        
+        return activeSets.documents as unknown as ActiveSet[];
+    } catch (error: any) {
+        console.error("Error listing active sets:", error);
+        throw new Error(error?.message || 'Failed to list active sets');
+    }
+}

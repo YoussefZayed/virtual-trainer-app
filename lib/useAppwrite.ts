@@ -9,9 +9,13 @@ const useAppwrite = (fn) => {
     setLoading(true);
     try {
       const res = await fn();
-      setData(res);
+      // Ensure we're always setting an array, even if the result is undefined
+      setData(Array.isArray(res) ? res : []);
     } catch (error) {
-      Alert.alert("Error", error.message);
+      console.error("Error in useAppwrite hook:", error);
+      // Don't show alert for every error - it can be annoying
+      // Just set empty data and let the UI handle it
+      setData([]);
     } finally {
       setLoading(false);
     }
